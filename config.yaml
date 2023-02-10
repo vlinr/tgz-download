@@ -1,0 +1,4 @@
+npmUrl: https://registry.npmjs.org/
+outDir: ./storage
+expire: 30
+compress_type: zip

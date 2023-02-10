@@ -1,0 +1,24 @@
+{
+  "name": "tgz_download_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "any-message": "^0.0.5",
+    "ejs": "^3.1.8",
+    "koa": "^2.14.1",
+    "koa-body": "^6.0.1",
+    "koa-bodyparser": "^4.3.0",
+    "koa-compress": "^5.1.0",
+    "koa-cors": "^0.0.16",
+    "koa-router": "^12.0.0",
+    "koa-static": "^5.0.0",
+    "koa-views": "^8.0.0"
+  }
+}
