@@ -19,7 +19,7 @@ app.use(koaBody({
     // parsedMethods:['PUT']
 }));
 // app.use(bodyParser());
-const { default:tgz,getCacheData } = require('./lib/tgz');
+const { default:tgz,getCacheData } = require('tgz-get');
 
 const { createUUID, dirExists, readFile, rmDir } = require('./utils');
 
