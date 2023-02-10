@@ -1,6 +1,6 @@
 {
   "name": "tgz-get",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Specifically for downloading npm offline tgz packages, it supports *.lock, .json, packageName@, and can be used in conjunction with verdaccio.",
   "main": "./lib/tgz.js",
   "keywords": [

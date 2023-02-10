@@ -53,6 +53,16 @@ const tgz = async (packageInfo,callback)=>{
             msg:UUID
         }
     });
+    if(!(/http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/.test(config.npmUrl))){
+        return callback && callback({
+            status:STATUS.error,
+            msg:'Illegal domain name, from `npmUrl`.',
+            data:{
+                status:STATUS.error,
+                msg:'Illegal domain name, from `npmUrl`.'
+            }
+        });
+    }
     saveExpire(config,false,{
         status:0,
         type:config.compress_type,

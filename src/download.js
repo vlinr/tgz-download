@@ -21,7 +21,7 @@ const downloadByName = async (name,version='',options)=>{
         const fileName = 'package.json';
         let success;
         try{
-            await download(`${options.npmUrl}${name}`,writePath,fileName);
+            await download(mergePath(options.npmUrl,name),writePath,fileName);
             success = true;
         }catch(err){
             if(err.status === 0 && err.msg === 'file exists'){
@@ -33,6 +33,22 @@ const downloadByName = async (name,version='',options)=>{
         }
         resolve();
     })
+}
+
+/**
+ * 
+ * @func 合并路径
+ * 
+ * 
+*/
+const mergePath = (url,name)=>{
+    // 判断url最后是否有/
+    if(url.lastIndexOf('/') === url.length){
+        return `${url}${name}`;
+    }
+    else{ 
+        return `${url}/${name}`;
+    }
 }
 
 /**
@@ -387,6 +403,7 @@ const parseYarnLock = (lock)=>{
 
 // 下载状态
 const STATUS = {
+    error:-1,
     start:0, // 开始，启动成功，会返回缓存目录名称
     idle:1, // 整理需要下载的文件
     download:2, // 正则下载指定文件
