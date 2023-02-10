@@ -2,7 +2,7 @@
 Specifically for downloading npm offline tgz packages, it supports *.lock, *.json, packageName@*, and can be used in conjunction with verdaccio.
 
 <p align="center">
-    <a href="https://unpkg.com/tgz-get/lib/index.js"><img src="https://img.badgesize.io/https:/unpkg.com/tgz-get/lib/index.js?compression=gzip&style=flat-square" alt="Gzip Size"></a>
+    <a href="https://unpkg.com/tgz-get/lib/tgz.js"><img src="https://img.badgesize.io/https:/unpkg.com/tgz-get/lib/tgz.js?compression=gzip&style=flat-square" alt="Gzip Size"></a>
     <a href="https://www.npmjs.com/package/tgz-get"><img src="https://img.shields.io/npm/v/tgz-get.svg?style=flat-square&colorB=51C838" alt="NPM Version"></a>
 </p>
 
