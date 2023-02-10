@@ -8,8 +8,8 @@ export default {
     input: 'src/index.js',
     output: {
         format: process.env.NODE_ENV,
-        file:'./lib/tgz.download.js',
-        name:'tgz_download'
+        file:'./lib/tgz.js',
+        name:'tgz'
     },
     plugins: [
         commonjs(),

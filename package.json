@@ -1,10 +1,12 @@
 {
-  "name": "tgz-download",
+  "name": "tgz-get",
   "version": "1.0.0",
-  "description": "Intranet npm dedicated downloader",
-  "main": "./lib/tgz.download.js",
+  "description": "Specifically for downloading npm offline tgz packages, it supports *.lock, .json, packageName@, and can be used in conjunction with verdaccio.",
+  "main": "./lib/tgz.js",
   "keywords": [
     "tgz",
+    "tgz download",
+    "npm tgz",
     "download",
     "verdaccio"
   ],

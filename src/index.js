@@ -14,7 +14,7 @@ const { saveExpire, getExpire } = require("./expire");
  * @params callback:{function}: 下载回掉状态
  * 
  * */ 
-const tgz_download = async (packageInfo,callback)=>{
+const tgz = async (packageInfo,callback)=>{
     const executePath = process.cwd();
     const configPath = path.join(executePath,'config.yaml');
     const exists = await getStat(configPath);
@@ -64,6 +64,6 @@ const tgz_download = async (packageInfo,callback)=>{
 }
 
 module.exports = {
-    default:tgz_download,
+    default:tgz,
     getCacheData:getExpire
 };

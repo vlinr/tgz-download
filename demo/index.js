@@ -1,4 +1,4 @@
-const tgz = require('../lib/tgz.download');
+const tgz = require('../lib/tgz');
 const { readFile } = require('../src/fs.js');
 // package.json文件
 readFile('./demo/yarn.lock').then(res=>{

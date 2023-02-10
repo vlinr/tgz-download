@@ -19,7 +19,7 @@ app.use(koaBody({
     // parsedMethods:['PUT']
 }));
 // app.use(bodyParser());
-const { default:tgz_download,getCacheData } = require('./lib/tgz.download');
+const { default:tgz,getCacheData } = require('./lib/tgz');
 
 const { createUUID, dirExists, readFile, rmDir } = require('./utils');
 
@@ -113,7 +113,7 @@ router
     if(!Object.keys(have).length){
         rmDir(path.join(__dirname,staticPath));
     }
-    tgz_download(key);
+    tgz(key);
     ctx.body = {
         code:200,
         message:'Downloader started successfully.',
@@ -169,4 +169,4 @@ app
     .use(router.routes())
     .use(router.allowedMethods());
 
-app.listen(3000, () => { console.log('live server') });
+app.listen(3000, () => { console.log('Server start success. Access http://localhost:3000/ to preview') });

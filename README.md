@@ -1,9 +1,9 @@
-# tgz-download
+# tgz-get
 Specifically for downloading npm offline tgz packages, it supports *.lock, *.json, packageName@*, and can be used in conjunction with verdaccio.
 
 <p align="center">
-    <a href="https://unpkg.com/tgz-download/lib/index.js"><img src="https://img.badgesize.io/https:/unpkg.com/tgz-download/lib/index.js?compression=gzip&style=flat-square" alt="Gzip Size"></a>
-    <a href="https://www.npmjs.com/package/tgz-download"><img src="https://img.shields.io/npm/v/tgz-download.svg?style=flat-square&colorB=51C838" alt="NPM Version"></a>
+    <a href="https://unpkg.com/tgz-get/lib/index.js"><img src="https://img.badgesize.io/https:/unpkg.com/tgz-get/lib/index.js?compression=gzip&style=flat-square" alt="Gzip Size"></a>
+    <a href="https://www.npmjs.com/package/tgz-get"><img src="https://img.shields.io/npm/v/tgz-get.svg?style=flat-square&colorB=51C838" alt="NPM Version"></a>
 </p>
 
 ## Demo
@@ -26,9 +26,9 @@ or
 
 ## Use
 
-Provide two APIs, `tgz_download` and `getCacheData`
+Provide two APIs, `tgz` and `getCacheData`
 
-`tgz_download(packageInfo,callback)` and `getCacheData()`
+`tgz(packageInfo,callback)` and `getCacheData()`
 
 ## Config 
 
