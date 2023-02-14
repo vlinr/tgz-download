@@ -68,13 +68,18 @@ const saveExpire = async (options,compress,info)=>{
 const writeFile = (data,options)=>{
     for(let key in data){
         if(data[key].date && !isExpire(data[key].date,options.expire)){
-            if(isDirectory(data[key].path)){
-                rmDir(data[key].path);
-            }else{
-                deleteFile(data[key].path);
+            if(data[key].path){
+                if(isDirectory(data[key].path)){
+                    rmDir(data[key].path);
+                }else{
+                    deleteFile(data[key].path);
+                }
+                // delete
+                delete data[key];
+                if(__CACHE_WRIT_WRITE_INFO__.data[key]){
+                    delete __CACHE_WRIT_WRITE_INFO__.data[key];
+                }
             }
-            // delete
-            delete data[key];
         }
     }
     fs.writeFile(path.join(__dirname,'.tgz.json'),JSON.stringify(data),'utf-8',()=>{

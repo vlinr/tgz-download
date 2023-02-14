@@ -20,6 +20,7 @@ const download=(
   fileName,
   append = false,
   overlap = false,
+  retry = 3
 ) => {
   return new Promise(async (resolve, reject) => {
     if (!fs.existsSync(targetPath)) {
@@ -35,37 +36,46 @@ const download=(
         })
       }
     }
-    try {
-      axios({
-        url: filePath,
-        method: 'GET',
-        responseType: 'arraybuffer',
-      })
-        .then(async (res) => {
-          try {
-            const result = await saveFile(
-              path.join(targetPath, fileName),
-              res.data,
-              append,
-            )
-            resolve(result)
-          } catch (err) {
-            reject(err)
-          }
-        })
-        .catch((err) => {
-          reject({
-            status: 0,
-            msg: path.join(targetPath, fileName),
-          })
-        })
-    } catch (e) {
-      reject({
-        status: 0,
-        msg: path.join(targetPath, fileName),
-      })
-    }
+    // try {
+    requestAxios(filePath,targetPath, fileName,append,resolve,reject,retry);
+    // } catch (e) {
+    //   reject({
+    //     status: 0,
+    //     msg: path.join(targetPath, fileName),
+    //   })
+    // }
   })
+}
+
+const requestAxios = (filePath,targetPath, fileName,append,resolve,reject,retry)=>{
+  axios({
+    url: filePath,
+    method: 'GET',
+    responseType: 'arraybuffer',
+  })
+    .then(async (res) => {
+      try {
+        const result = await saveFile(
+          path.join(targetPath, fileName),
+          res.data,
+          append,
+        )
+        resolve(result);
+      } catch (err) {
+        reject(err)
+      }
+    })
+    .catch((err) => {
+      retry --;
+      if(retry <= 0){
+        reject({
+          status: 0,
+          msg: path.join(targetPath, fileName),
+        })
+      }else{
+        requestAxios(filePath,targetPath,fileName,append,resolve,reject,retry);
+      }
+    })
 }
 
 const saveFile = (filePath, data, append) => {

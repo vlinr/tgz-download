@@ -11,13 +11,15 @@ const { saveExpire, getExpire } = require("./expire");
  * @func 下载指定包名或者package.json或者lock文件的依赖文件
  * 
  * @params packageInfo:{string | object}: 包名或者文件对象
- * @params callback:{function}: 下载回掉状态
+ * @params callback:[function]: 下载回掉状态
+ * @params customOptions:[object]:自定义存储标识内容
  * 
  * */ 
-const tgz = async (packageInfo,callback)=>{
+const tgz = async (packageInfo,callback,customOptions)=>{
     const executePath = process.cwd();
     const configPath = path.join(executePath,'config.yaml');
     const exists = await getStat(configPath);
+    customOptions = customOptions || {};
     let config = {
         npmUrl:'https://registry.npmjs.org/',
         outDir:path.join(executePath,'storage'),
@@ -66,8 +68,9 @@ const tgz = async (packageInfo,callback)=>{
     saveExpire(config,false,{
         status:0,
         type:config.compress_type,
-        name:UUID,
-        expire:config.expire
+        UUID,
+        expire:config.expire,
+        ...customOptions,
     });
     config.callback = callback;
     main(packageInfo,config);

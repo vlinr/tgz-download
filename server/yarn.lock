@@ -1234,10 +1234,10 @@ tar-stream@^1.5.2:
     to-buffer "^1.1.1"
     xtend "^4.0.0"
 
-tgz-get@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/tgz-get/-/tgz-get-1.0.2.tgz#80581222e5e7ae5987e54c976061216addb3642b"
-  integrity sha512-P849B82dihENkIZxU/P0gyBlP8ncl7hadIWRwA1KIT5OqwCHGCs/7iVIlBVgysIGJcfsv980TZyNaVf4er//qQ==
+tgz-get@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.npmjs.org/tgz-get/-/tgz-get-1.0.4.tgz#70e37f0c4cf94a0f8882f8ae686e8377a25d7942"
+  integrity sha512-Pbs95WSYkxdb56s/aCAavDNS7k7sSTf0ksGj/w5ZuKl7hMklcUcj7fIg7GZQo9AB3jxWLU1QQ5jem2DLmVRSAA==
   dependencies:
     "@babel/polyfill" "^7.12.1"
     "@babel/runtime" "^7.20.13"

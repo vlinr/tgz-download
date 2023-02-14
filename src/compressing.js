@@ -6,10 +6,10 @@ const { zip,tar } = require('compressing');
  * 
  * 
 */
-const compress_zip = async (filePath,targetPath = '')=>{
+const compress_zip = async (filePath,targetPath)=>{
     let success;
     try{
-       await zip.compressDir(filePath,`${targetPath?targetPath:filePath}.zip`);
+       await zip.compressDir(filePath,targetPath);
        success = true;
     }catch(err){
        success = false;
@@ -23,10 +23,10 @@ const compress_zip = async (filePath,targetPath = '')=>{
  * 
  * 
 */
-const compress_tar = async (filePath,targetPath='')=>{
+const compress_tar = async (filePath,targetPath)=>{
     let success;
     try{
-       await tar.compressDir(filePath,`${targetPath?targetPath:filePath}.tar`);
+       await tar.compressDir(filePath,targetPath);
        success = true;
     }catch(err){
        success = false;

@@ -82,7 +82,7 @@ const deleteFile = (filePath) => {
         logger(JSON.stringify(err))
       }
     }
-  })
+  }).catch(console.log)
 }
 
 /**

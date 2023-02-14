@@ -66,8 +66,9 @@ router
         const data = await getCacheData();
         if(data){
             data.forEach((item)=>{
+                item.name = item.name || item.UUID;
                 if(item.status === 1){
-                    item.url = ctx.request.origin + path.join('/',item.name+'.'+item.type);
+                    item.url = ctx.request.origin + path.join('/',item.UUID+'.'+item.type);
                 }
                 if(item.path)delete item.path;
             })
@@ -86,7 +87,7 @@ router
     }
     
 }).post('/download',async (ctx, next) => {
-    let { key,file } = ctx.request.body;
+    let { key,file,fileName } = ctx.request.body;
     if(!key){
       return ctx.body = {
             code:500,
@@ -113,7 +114,13 @@ router
     if(!Object.keys(have).length){
         rmDir(path.join(__dirname,staticPath));
     }
-    tgz(key);
+    let status = -2;
+    tgz(key,(message)=>{
+        if(message.status !== status){
+            console.log(message.msg)
+            message = message.status;
+        }
+    },{ name:fileName });
     ctx.body = {
         code:200,
         message:'Downloader started successfully.',

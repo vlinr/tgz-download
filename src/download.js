@@ -98,6 +98,21 @@ const readInfo = async (packageName,writePath,fileName,version,options)=>{
             for(let key in pg.dependencies){
                await downloadByName(key,pg.dependencies[key],options);
             }
+            if(pg.optionalDependencies){
+                for(let key in pg.optionalDependencies){
+                    await downloadByName(key,pg.optionalDependencies[key],options);
+                 }
+            }
+            if(pg.peerDependencies){
+                for(let key in pg.peerDependencies){
+                    await downloadByName(key,pg.peerDependencies[key],options);
+                 }
+            }
+            if(pg.bundledDependencies){
+                for(let key in pg.bundledDependencies){
+                    await downloadByName(key,pg.bundledDependencies[key],options);
+                 }
+            }
         }
     }else{
         options.callback && options.callback({
@@ -321,13 +336,13 @@ const commonDownload = async (options)=>{
     let compress;
     switch(options.compress_type){
         case 'zip':
-            compress = await compress_zip(options.outDir);
+            compress = await compress_zip(options.outDir,options.outDir + '.zip');
         break;
         case 'gzip':
-            compress = await compress_gzip(options.outDir);
+            compress = await compress_gzip(options.outDir,options.outDir + '.gzip');
         break;
         default:
-            compress = await compress_tar(options.outDir);
+            compress = await compress_tar(options.outDir,options.outDir + '.tar');
         break;
     }
     // 保存过期信息,1成功，-1失败
