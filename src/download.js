@@ -4,6 +4,7 @@ const { compress_zip, compress_gzip, compress_tar } = require('./compressing');
 const { saveExpire } = require('./expire');
 const { readFile } = require('./fs');
 const download = require('./request');
+const semver = require('semver');
 
 /**
  * 
@@ -15,7 +16,7 @@ const download = require('./request');
  * 
  * */ 
 const downloadByName = async (name,version='',options)=>{
-    version = version.replace(/\^|~|>|<|=|"/g,'');
+    // version = version.replace(/\^|~|>|<|=|"/g,'');
     return new Promise(async (resolve)=>{
         const writePath = `${path.join(options.outDir,name)}`;
         const fileName = 'package.json';
@@ -69,17 +70,8 @@ const readInfo = async (packageName,writePath,fileName,version,options)=>{
     const value = await readFile(path.join(writePath,fileName));
     if(typeof value.msg === 'object' && value.msg.versions){
         let versions = Object.keys(value.msg.versions); 
-        // 匹配 最新版本号和x.x.x或者指定版本号，带x的版本仅支持正式版
-        // 本步骤排除 1.0.1-rc.2.3 类似版本 同时也可以计算出是否包含 1.x.x类似版本
-        let selectVersion = versions.find((item)=>item === version); 
-        // 如果没有找到，证明version为正常的 *.*.* 
-        if(!selectVersion){
-            // 如果指定版本没有找到，匹配版本是否有
-            versions = versions.filter((item)=>/^\d+\.\d+\.\d+$/.test(item));
-            selectVersion = getAnyVersion(versions,version);
-        }
+        let selectVersion = getAnyVersion(versions,version,value.msg['dist-tags'].latest); 
         const pg = value.msg.versions[selectVersion];
-        // 暂时只是统计dependencies内容
         if(pg && !options.__CACHE_VERSION_INFO__[`${packageName}@${selectVersion}`]){
             const tgzName = getTarballFileName(pg.dist.tarball);
             options.__CACHE_VERSION_INFO__[`${packageName}@${selectVersion}`] = {
@@ -103,16 +95,16 @@ const readInfo = async (packageName,writePath,fileName,version,options)=>{
                     await downloadByName(key,pg.optionalDependencies[key],options);
                  }
             }
-            if(pg.peerDependencies){
-                for(let key in pg.peerDependencies){
-                    await downloadByName(key,pg.peerDependencies[key],options);
-                 }
-            }
-            if(pg.bundledDependencies){
-                for(let key in pg.bundledDependencies){
-                    await downloadByName(key,pg.bundledDependencies[key],options);
-                 }
-            }
+            // if(pg.peerDependencies){
+            //     for(let key in pg.peerDependencies){
+            //         await downloadByName(key,pg.peerDependencies[key],options);
+            //      }
+            // }
+            // if(pg.bundledDependencies){
+            //     for(let key in pg.bundledDependencies){
+            //         await downloadByName(key,pg.bundledDependencies[key],options);
+            //      }
+            // }
         }
     }else{
         options.callback && options.callback({
@@ -180,68 +172,30 @@ const getTarballFileName = (url)=>{
 
 /**
  * 
+ * @function 匹配版本号是否符合某个范围
+ * 
+*/
+const isVersionMatch = (version, range) => {
+    return semver.satisfies(version, range);
+};
+
+/**
+ * 
  * @func 返回指定特殊版本号
  * 
  * */ 
-const getAnyVersion = (data,version)=>{
+const getAnyVersion = (data,version,latestVersion)=>{
     let result;
-    version = version.split('.');
-    if(data.length > 0){
-        if(['x','*'].includes(version[0]) || version[0] === 'latest'){
-            // 返回最新的
-            let newVersion = data[0];
-            data.forEach((item)=>{
-                const oldArr = item.split('.');
-                const newArr = newVersion.split('.');
-                if(Number(oldArr[0]) > Number(newArr[0])){
-                    newVersion = item;
-                }else if(oldArr[0] === newArr[0]){
-                    if(Number(oldArr[1]) > Number(newArr[1])){
-                        newVersion = item;
-                    }else if(oldArr[1] === newArr[1]){
-                        if(Number(oldArr[2]) > Number(newArr[2])){
-                            newVersion = item;
-                        }
-                    }
+    // version = version.split('.');
+    if(['x','*','latest'].includes(version)){
+        result = latestVersion;
+    }else{
+        if(data.length > 0){
+            for(let v of data){
+                if(!version || isVersionMatch(v,version)){
+                    result = v;
+                    // break;
                 }
-            })
-            result = newVersion;
-        }else if(['x','*'].includes(version[1])){
-            data = data.filter((item)=>{
-                const arr = item.split('.');
-                return arr[0] === version[0]
-            })
-            if(data.length > 0){
-                let newVersion = data[0];
-                data.forEach((item)=>{
-                    const oldArr = item.split('.');
-                    const newArr = newVersion.split('.');
-                    if(Number(oldArr[1]) > Number(newArr[1])){
-                        newVersion = item;
-                    }else if(oldArr[1] === newArr[1]){
-                        if(Number(oldArr[2]) > Number(newArr[2])){
-                            newVersion = item;
-                        }
-                    }
-                })
-                result = newVersion;
-            }
-        }else if(['x','*'].includes(version[2])){
-            // 返回第一个指定，第二个指定，第三个内容最新的内容
-            data = data.filter((item)=>{
-                const arr = item.split('.');
-                return arr[0] === version[0] && arr[1] === version[1]
-            })
-            if(data.length > 0){
-                let newVersion = data[0];
-                data.forEach((item)=>{
-                    const oldArr = item.split('.');
-                    const newArr = newVersion.split('.');
-                    if(Number(oldArr[2]) > Number(newArr[2])){
-                        newVersion = item;
-                    }
-                })
-                result = newVersion;
             }
         }
     }

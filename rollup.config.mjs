@@ -8,7 +8,7 @@ export default {
     input: 'src/index.js',
     output: {
         format: process.env.NODE_ENV,
-        file:'./lib/tgz.js',
+        file:'./app/tgz.js',
         name:'tgz'
     },
     plugins: [

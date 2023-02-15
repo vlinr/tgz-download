@@ -19,7 +19,7 @@ app.use(koaBody({
     // parsedMethods:['PUT']
 }));
 // app.use(bodyParser());
-const { default:tgz,getCacheData } = require('tgz-get');
+const { default:tgz,getCacheData } = require('../app/tgz.js');
 
 const { createUUID, dirExists, readFile, rmDir } = require('./utils');
 
@@ -31,6 +31,14 @@ app.use(static(
 const options = { 
     threshold: 1024 //数据超过1kb时压缩
 };
+
+const STATUS_MESSAGE = {
+    '-1':'This download failed, please download again.',
+    '0':'The program started successfully.',
+    '1':'Arranging files for download.',
+    '2':'Synthesizing related files.',
+    '3':'All files processed.'
+}
 
 app.use(compress(options));
 
@@ -117,8 +125,8 @@ router
     let status = -2;
     tgz(key,(message)=>{
         if(message.status !== status){
-            console.log(message.msg)
-            message = message.status;
+            status = message.status;
+            console.log(STATUS_MESSAGE[status.toString()])
         }
     },{ name:fileName });
     ctx.body = {
