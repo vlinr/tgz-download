@@ -44,7 +44,7 @@ const downloadByName = async (name,version='',options)=>{
 */
 const mergePath = (url,name)=>{
     // 判断url最后是否有/
-    if(url.lastIndexOf('/') === url.length){
+    if(url.lastIndexOf('/') === url.length - 1){
         return `${url}${name}`;
     }
     else{ 
@@ -70,42 +70,84 @@ const readInfo = async (packageName,writePath,fileName,version,options)=>{
     const value = await readFile(path.join(writePath,fileName));
     if(typeof value.msg === 'object' && value.msg.versions){
         let versions = Object.keys(value.msg.versions); 
-        let selectVersion = getAnyVersion(versions,version,value.msg['dist-tags'].latest); 
-        const pg = value.msg.versions[selectVersion];
-        if(pg && !options.__CACHE_VERSION_INFO__[`${packageName}@${selectVersion}`]){
-            const tgzName = getTarballFileName(pg.dist.tarball);
-            options.__CACHE_VERSION_INFO__[`${packageName}@${selectVersion}`] = {
-                writePath:`${path.join(options.outDir,packageName)}`,
-                tarball:pg.dist.tarball,
-                fileName:getTarballFileName(pg.dist.tarball)
-            }
-            options.callback && options.callback({
-                status:STATUS.idle,
-                msg:`Need to download, package name: ${tgzName}`,
-                data:{
-                    status:1,
-                    msg:`Package:${packageName},Version:${selectVersion},TgzName:${tgzName}`
+        if(version === ''){ // 下载所有
+            for(let v of versions){
+                const pg = value.msg.versions[v];
+                if(pg && !options.__CACHE_VERSION_INFO__[`${packageName}@${v}`]){
+                    const tgzName = getTarballFileName(pg.dist.tarball);
+                    options.__CACHE_VERSION_INFO__[`${packageName}@${v}`] = {
+                        writePath:`${path.join(options.outDir,packageName)}`,
+                        tarball:pg.dist.tarball,
+                        fileName:getTarballFileName(pg.dist.tarball)
+                    }
+                    options.callback && options.callback({
+                        status:STATUS.idle,
+                        msg:`Need to download, package name: ${tgzName}`,
+                        data:{
+                            status:1,
+                            msg:`Package:${packageName},Version:${v},TgzName:${tgzName}`
+                        }
+                    });
+                    for(let key in pg.dependencies){
+                       await downloadByName(key,pg.dependencies[key],options);
+                    }
+                    if(pg.optionalDependencies){
+                        for(let key in pg.optionalDependencies){
+                            await downloadByName(key,pg.optionalDependencies[key],options);
+                         }
+                    }
+                    // if(pg.peerDependencies){
+                    //     for(let key in pg.peerDependencies){
+                    //         await downloadByName(key,pg.peerDependencies[key],options);
+                    //      }
+                    // }
+                    // if(pg.bundledDependencies){
+                    //     for(let key in pg.bundledDependencies){
+                    //         await downloadByName(key,pg.bundledDependencies[key],options);
+                    //      }
+                    // }
                 }
-            });
-            for(let key in pg.dependencies){
-               await downloadByName(key,pg.dependencies[key],options);
             }
-            if(pg.optionalDependencies){
-                for(let key in pg.optionalDependencies){
-                    await downloadByName(key,pg.optionalDependencies[key],options);
-                 }
+        }else{
+            let selectVersion = getAnyVersion(versions,version,value.msg['dist-tags'].latest); 
+            const pg = value.msg.versions[selectVersion];
+            // 防止顺序更改，排序
+            if(pg && !options.__CACHE_VERSION_INFO__[`${packageName}@${selectVersion}`]){
+                const tgzName = getTarballFileName(pg.dist.tarball);
+                options.__CACHE_VERSION_INFO__[`${packageName}@${selectVersion}`] = {
+                    writePath:`${path.join(options.outDir,packageName)}`,
+                    tarball:pg.dist.tarball,
+                    fileName:getTarballFileName(pg.dist.tarball)
+                }
+                options.callback && options.callback({
+                    status:STATUS.idle,
+                    msg:`Need to download, package name: ${tgzName}`,
+                    data:{
+                        status:1,
+                        msg:`Package:${packageName},Version:${selectVersion},TgzName:${tgzName}`
+                    }
+                });
+                for(let key in pg.dependencies){
+                   await downloadByName(key,pg.dependencies[key],options);
+                }
+                if(pg.optionalDependencies){
+                    for(let key in pg.optionalDependencies){
+                        await downloadByName(key,pg.optionalDependencies[key],options);
+                     }
+                }
+                // if(pg.peerDependencies){
+                //     for(let key in pg.peerDependencies){
+                //         await downloadByName(key,pg.peerDependencies[key],options);
+                //      }
+                // }
+                // if(pg.bundledDependencies){
+                //     for(let key in pg.bundledDependencies){
+                //         await downloadByName(key,pg.bundledDependencies[key],options);
+                //      }
+                // }
             }
-            // if(pg.peerDependencies){
-            //     for(let key in pg.peerDependencies){
-            //         await downloadByName(key,pg.peerDependencies[key],options);
-            //      }
-            // }
-            // if(pg.bundledDependencies){
-            //     for(let key in pg.bundledDependencies){
-            //         await downloadByName(key,pg.bundledDependencies[key],options);
-            //      }
-            // }
         }
+        
     }else{
         options.callback && options.callback({
             status:STATUS.idle,
@@ -193,8 +235,10 @@ const getAnyVersion = (data,version,latestVersion)=>{
         if(data.length > 0){
             for(let v of data){
                 if(!version || isVersionMatch(v,version)){
-                    result = v;
-                    // break;
+                    if(result && semver.lt(result,v) || !result){
+                        result = v;
+                        // break;
+                    }
                 }
             }
         }
@@ -339,7 +383,7 @@ const splitVersion = (str)=>{
     if(lastIndex <= 0){
         return {
             name:str,
-            version:'*'
+            version:''
         }
     }else{
         return {
