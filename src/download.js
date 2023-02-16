@@ -96,16 +96,16 @@ const readInfo = async (packageName,writePath,fileName,version,options)=>{
                             await downloadByName(key,pg.optionalDependencies[key],options);
                          }
                     }
-                    // if(pg.peerDependencies){
-                    //     for(let key in pg.peerDependencies){
-                    //         await downloadByName(key,pg.peerDependencies[key],options);
-                    //      }
-                    // }
-                    // if(pg.bundledDependencies){
-                    //     for(let key in pg.bundledDependencies){
-                    //         await downloadByName(key,pg.bundledDependencies[key],options);
-                    //      }
-                    // }
+                    if(pg.peerDependencies){
+                        for(let key in pg.peerDependencies){
+                            await downloadByName(key,pg.peerDependencies[key],options);
+                         }
+                    }
+                    if(pg.bundledDependencies){
+                        for(let key in pg.bundledDependencies){
+                            await downloadByName(key,pg.bundledDependencies[key],options);
+                         }
+                    }
                 }
             }
         }else{
@@ -135,16 +135,16 @@ const readInfo = async (packageName,writePath,fileName,version,options)=>{
                         await downloadByName(key,pg.optionalDependencies[key],options);
                      }
                 }
-                // if(pg.peerDependencies){
-                //     for(let key in pg.peerDependencies){
-                //         await downloadByName(key,pg.peerDependencies[key],options);
-                //      }
-                // }
-                // if(pg.bundledDependencies){
-                //     for(let key in pg.bundledDependencies){
-                //         await downloadByName(key,pg.bundledDependencies[key],options);
-                //      }
-                // }
+                if(pg.peerDependencies){
+                    for(let key in pg.peerDependencies){
+                        await downloadByName(key,pg.peerDependencies[key],options);
+                     }
+                }
+                if(pg.bundledDependencies){
+                    for(let key in pg.bundledDependencies){
+                        await downloadByName(key,pg.bundledDependencies[key],options);
+                     }
+                }
             }
         }
         
