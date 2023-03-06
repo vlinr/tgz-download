@@ -18,7 +18,7 @@ const semver = require('semver');
 const downloadByName = async (name,version='',options)=>{
     // version = version.replace(/\^|~|>|<|=|"/g,'');
     return new Promise(async (resolve)=>{
-        const writePath = `${path.join(options.outDir,name)}`;
+        const writePath = `${path.join(options.staticPath,name)}`;
         const fileName = 'package.json';
         let success;
         try{
@@ -76,7 +76,7 @@ const readInfo = async (packageName,writePath,fileName,version,options)=>{
                 if(pg && !options.__CACHE_VERSION_INFO__[`${packageName}@${v}`]){
                     const tgzName = getTarballFileName(pg.dist.tarball);
                     options.__CACHE_VERSION_INFO__[`${packageName}@${v}`] = {
-                        writePath:`${path.join(options.outDir,packageName)}`,
+                        writePath:`${path.join(options.staticPath,packageName)}`,
                         tarball:pg.dist.tarball,
                         fileName:getTarballFileName(pg.dist.tarball)
                     }
@@ -115,7 +115,7 @@ const readInfo = async (packageName,writePath,fileName,version,options)=>{
             if(pg && !options.__CACHE_VERSION_INFO__[`${packageName}@${selectVersion}`]){
                 const tgzName = getTarballFileName(pg.dist.tarball);
                 options.__CACHE_VERSION_INFO__[`${packageName}@${selectVersion}`] = {
-                    writePath:`${path.join(options.outDir,packageName)}`,
+                    writePath:`${path.join(options.staticPath,packageName)}`,
                     tarball:pg.dist.tarball,
                     fileName:getTarballFileName(pg.dist.tarball)
                 }
@@ -293,7 +293,7 @@ const main = (packageInfo,options)=>{
                     // package-lock
                     for(let subKey in item){
                         options.__CACHE_VERSION_INFO__[`${subKey}@${item.version}`] = {
-                            writePath:`${path.join(options.outDir,subKey)}`,
+                            writePath:`${path.join(options.staticPath,subKey)}`,
                             tarball:item[subKey].resolved,
                             fileName:getTarballFileName(item[subKey].resolved)
                         }
@@ -334,19 +334,20 @@ const commonDownload = async (options)=>{
     let compress;
     switch(options.compress_type){
         case 'zip':
-            compress = await compress_zip(options.outDir,options.outDir + '.zip');
+            compress = await compress_zip(options.staticPath,options.staticPath + '.zip');
         break;
         case 'gzip':
-            compress = await compress_gzip(options.outDir,options.outDir + '.gzip');
+            compress = await compress_gzip(options.staticPath,options.staticPath + '.gzip');
         break;
         default:
-            compress = await compress_tar(options.outDir,options.outDir + '.tar');
+            compress = await compress_tar(options.staticPath,options.staticPath + '.tar');
         break;
     }
     // 保存过期信息,1成功，-1失败
-    saveExpire(options,compress,{
+    saveExpire(compress,{
+        ...options,
         date:new Date().getTime(),
-        path:compress?`${options.outDir}.${options.compress_type}`:options.outDir,
+        // path:compress?`${options.staticPath}.${options.compress_type}`:options.staticPath,
         status:compress ? 1 : -1
     });
     if(compress){
@@ -355,7 +356,7 @@ const commonDownload = async (options)=>{
             msg:'End of all content download.',
             data:{
                 status:1,
-                msg:`${options.outDir}.${options.compress_type}`
+                msg:`${options.staticPath}.${options.compress_type}`
             }
         });
     }else{

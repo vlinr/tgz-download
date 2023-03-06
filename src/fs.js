@@ -32,7 +32,11 @@ const dirExists = async (dir)=> {
  *
  * */
 const isDirectory=(filePath)=> {
-  return fs.statSync(filePath).isDirectory()
+  try{
+    return fs.statSync(filePath).isDirectory()
+  }catch(err){
+    return false;
+  };
 }
 
 /**
@@ -82,7 +86,9 @@ const deleteFile = (filePath) => {
         logger(JSON.stringify(err))
       }
     }
-  }).catch(console.log)
+  }).catch(err=>{
+    console.log(`File path is not exists,${filePath}`)
+  })
 }
 
 /**

@@ -44,8 +44,9 @@ const tgz = async (packageInfo,callback,customOptions)=>{
             // 无配置文件
         }
     }
-    config.outDir = path.join(config.outDir,UUID);
+    // config.outDir = path.join(config.outDir,UUID);
     config.UUID = UUID;
+    config.staticPath = path.join(config.outDir,UUID);
     config.__CACHE_VERSION_INFO__ = {};
     callback && callback({
         status:STATUS.start,
@@ -65,11 +66,9 @@ const tgz = async (packageInfo,callback,customOptions)=>{
             }
         });
     }
-    saveExpire(config,false,{
+    saveExpire(false,{
         status:0,
-        type:config.compress_type,
-        UUID,
-        expire:config.expire,
+        ...config,
         ...customOptions,
     });
     config.callback = callback;

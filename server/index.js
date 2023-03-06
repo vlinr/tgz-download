@@ -76,7 +76,7 @@ router
             data.forEach((item)=>{
                 item.name = item.name || item.UUID;
                 if(item.status === 1){
-                    item.url = ctx.request.origin + path.join('/',item.UUID+'.'+item.type);
+                    item.url = ctx.request.origin + path.join('/',item.UUID+'.'+item.compress_type);
                 }
                 if(item.path)delete item.path;
             })

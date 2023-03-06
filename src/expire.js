@@ -6,6 +6,7 @@ const path = require("path");
 const __CACHE_WRIT_WRITE_INFO__ = {
     writeStatus:0,
     data:{},
+    options:{},
     firstWrite:true, // 第一次
     firstRead:true,
 };
@@ -15,14 +16,14 @@ const __CACHE_WRIT_WRITE_INFO__ = {
  * @params options: 配置信息
  * 
 */
-const saveExpire = async (options,compress,info)=>{
+const saveExpire = async (compress,info)=>{
     // 记录
-    __CACHE_WRIT_WRITE_INFO__.data[options.UUID] = {
-        ...__CACHE_WRIT_WRITE_INFO__.data[options.UUID],
+    __CACHE_WRIT_WRITE_INFO__.data[info.UUID] = {
+        ...__CACHE_WRIT_WRITE_INFO__.data[info.UUID],
         ...info
     }
     if(compress){
-        rmDir(options.outDir);
+        rmDir(info.staticPath);
     }
     // 正在写
     if(__CACHE_WRIT_WRITE_INFO__.writeStatus === 1){
@@ -36,7 +37,7 @@ const saveExpire = async (options,compress,info)=>{
     if(__CACHE_WRIT_WRITE_INFO__.firstWrite){
         __CACHE_WRIT_WRITE_INFO__.firstWrite = false;
         const exists = await getStat(path.join(__dirname,'.tgz.json'));
-        const writePath = options.outDir;
+        const writePath = info.staticPath;
         const lastIdx = writePath.lastIndexOf('/');
         if(exists){
             try{
@@ -54,10 +55,11 @@ const saveExpire = async (options,compress,info)=>{
             }
         }else{
             // clear
-            rmDir(writePath.substring(0,lastIdx),[compress?`${options.UUID}.${options.compress_type}`:options.UUID]);
+            rmDir(writePath.substring(0,lastIdx),[compress?`${info.UUID}.${info.compress_type}`:info.UUID]);
         }
     }
-    writeFile(tgzJson,options);
+
+    writeFile(tgzJson);
 }
 
 /**
@@ -65,33 +67,42 @@ const saveExpire = async (options,compress,info)=>{
  * @func 写入数据
  * 
 */
-const writeFile = (data,options)=>{
-    for(let key in data){
-        if(data[key].date && !isExpire(data[key].date,options.expire)){
-            if(data[key].path){
-                if(isDirectory(data[key].path)){
-                    rmDir(data[key].path);
-                }else{
-                    deleteFile(data[key].path);
-                }
-                // delete
-                delete data[key];
-                if(__CACHE_WRIT_WRITE_INFO__.data[key]){
-                    delete __CACHE_WRIT_WRITE_INFO__.data[key];
-                }
-            }
-        }
-    }
+const writeFile = (data)=>{
+    data = clearExpireFile(data);
     fs.writeFile(path.join(__dirname,'.tgz.json'),JSON.stringify(data),'utf-8',()=>{
         // write complete
         if(__CACHE_WRIT_WRITE_INFO__.writeStatus === 2){
             // 继续写
             __CACHE_WRIT_WRITE_INFO__.writeStatus = 1;
-            writeFile(__CACHE_WRIT_WRITE_INFO__.data,options);
+            writeFile(__CACHE_WRIT_WRITE_INFO__.data);
         }else{
             __CACHE_WRIT_WRITE_INFO__.writeStatus = 0;
         }
     });
+}
+
+/**
+ * 
+ * @func 清除过期内容
+ * 
+*/
+const clearExpireFile = (data)=>{
+    for(let key in data){
+        const item = data[key];
+        if(item.date && !isExpire(item.date,item.expire)){
+            const delPath = path.join(item.outDir,item.UUID);
+            if(isDirectory(delPath)){
+                rmDir(delPath);
+            }else{
+                deleteFile(`${delPath}.${item.compress_type}`);
+            }
+            delete data[key];
+            if(__CACHE_WRIT_WRITE_INFO__.data[key]){
+                delete __CACHE_WRIT_WRITE_INFO__.data[key];
+            }
+        }
+    }
+    return data;
 }
 
 /**
@@ -123,10 +134,11 @@ const getExpire = async ()=>{
              //
          }
     }
+    clearExpireFile(__CACHE_WRIT_WRITE_INFO__.data);
     // 根据日期排序
     const keys = Object.keys(__CACHE_WRIT_WRITE_INFO__.data);
     keys.sort((keyA,keyB)=>{
-        return __CACHE_WRIT_WRITE_INFO__.data[keyA].date-__CACHE_WRIT_WRITE_INFO__.data[keyB].date
+        return __CACHE_WRIT_WRITE_INFO__.data[keyA].date-__CACHE_WRIT_WRITE_INFO__.data[keyB].date;
     })
     const result = [];
     keys.forEach(item=>{
